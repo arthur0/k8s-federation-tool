@@ -26,27 +26,27 @@ Our main objective here is to guide you through the whole deploy of Federation c
 
 ```bash
 # Linux
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/kubernetes-client-linux-amd64.tar.gz
-master-c1$ tar -xzvf kubernetes-client-linux-amd64.tar.gz
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/kubernetes-client-linux-amd64.tar.gz
+$ tar -xzvf kubernetes-client-linux-amd64.tar.gz
 
 # OS X
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/kubernetes-client-darwin-amd64.tar.gz
-master-c1$ tar -xzvf kubernetes-client-darwin-amd64.tar.gz
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/kubernetes-client-darwin-amd64.tar.gz
+$ tar -xzvf kubernetes-client-darwin-amd64.tar.gz
 
 # Windows
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/kubernetes-client-windows-amd64.tar.gz
-master-c1$ tar -xzvf kubernetes-client-windows-amd64.tar.gz
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/kubernetes-client-windows-amd64.tar.gz
+$ tar -xzvf kubernetes-client-windows-amd64.tar.gz
 ```
 
-Note: You can download it to other architectures than amd64 in the [release page](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG.md#client-binaries-1).
+| Note: You can download it to other architectures than amd64 in the [release page](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG.md#client-binaries-1).
 
 * Copy the extracted binaries to */usr/local/bin* path and set the executable permission to them.
 
 ```bash
-cp kubernetes/client/bin/kubefed /usr/local/bin
-chmod +x /usr/local/bin/kubefed
-cp kubernetes/client/bin/kubectl /usr/local/bin
-chmod +x /usr/local/bin/kubectl
+$ cp kubernetes/client/bin/kubefed /usr/local/bin
+$ chmod +x /usr/local/bin/kubefed
+$ cp kubernetes/client/bin/kubectl /usr/local/bin
+$ chmod +x /usr/local/bin/kubectl
 ```
 
 ### Deploying CoreDNS and etcd-operator
@@ -56,7 +56,7 @@ chmod +x /usr/local/bin/kubectl
 * If your Kubernetes version is 1.6 or higher, you should [configure rbac rules](https://github.com/coreos/etcd-operator/blob/master/doc/user/rbac.md), before you create the etcd-operator helm chart. A 'permissive binding' will be created to to supply this need:
 
 ```bash
-kubectl create clusterrolebinding permissive-binding \
+$ kubectl create clusterrolebinding permissive-binding \
   --clusterrole=cluster-admin \
   --user=admin \
   --user=kubelet \
@@ -66,8 +66,8 @@ kubectl create clusterrolebinding permissive-binding \
 * Deploy the etcd-operator chart.
 
 ```bash
-helm install --name etcd-operator stable/etcd-operator
-helm upgrade --set cluster.enabled=true etcd-operator stable/etcd-operator
+$ helm install --name etcd-operator stable/etcd-operator
+$ helm upgrade --set cluster.enabled=true etcd-operator stable/etcd-operator
 ```
 
 * Get the IP of etcd-cluster service and add to */etc/hosts* with a domain name (e.g. etcd-cluster.onprem).
@@ -78,13 +78,13 @@ NAME           CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 etcd-cluster   1.1.1.1         <none>        2379/TCP   5m
 
 # Adding an entry in etc/hosts with its CLUSTER-IP
-echo "1.1.1.1   etcd-cluster.onprem" >> /etc/hosts
+$ echo "1.1.1.1   etcd-cluster.onprem" >> /etc/hosts
 ```
 
 * Create a file called **coredns-chart-config.yaml** with the command below:
 
 ```bash
-cat <<EOF > coredns-chart-config.yaml
+$ cat <<EOF > coredns-chart-config.yaml
 isClusterService: false
 serviceType: "NodePort"
 middleware:
@@ -101,7 +101,7 @@ EOF
 * Then, deploy the CoreDNS chart passing the config file as a parameter. More information [here](https://github.com/kubernetes/charts/tree/master/stable/coredns).
 
 ```bash
-helm install --name=coredns -f=coredns-chart-config.yaml stable/coredns
+$ helm install --name=coredns -f=coredns-chart-config.yaml stable/coredns
 ```
 
 ### Initilizing the Federation Control Plane
@@ -134,7 +134,7 @@ users:
 * Create **coredns-provider.conf** file with the following content:
 
 ```bash
-cat <<EOF > coredns-provider.conf
+$ cat <<EOF > coredns-provider.conf
 [Global]
 etcd-endpoints = http://etcd-cluster.onprem:2379
 zones = example.com.
@@ -144,7 +144,7 @@ EOF
 * Now, initialize the Federation Control Plane (Use `kubefed init --help` for more information about the parameters)
 
 ```bash
-kubefed init federation-control-pane \
+$ kubefed init federation-control-pane \
     --host-cluster-context=kubernetes-admin@kubernetes \
     --dns-provider="coredns" \
     --dns-zone-name="example.com." \
