@@ -6,7 +6,6 @@ source ./util.sh
 # TODO: Try/adapt to different namespaces
 NAMESPACE=${NAMESPACE:-"default"}
 KUBECTL="kubectl ${KUBECTL_PARAMS} --namespace=\"${NAMESPACE}\""
-ENDPOINT=${ENDPOINT:-"http://etcd-cluster:2379"}
 ZONES=${ZONES:-"example.com."}
 SERVICE_TYPE=${SERVICE_TYPE:-"NodePort"}
 
@@ -20,7 +19,7 @@ eval "${KUBECTL} create clusterrolebinding permissive-binding \
 
 eval "helm init --upgrade"
 tiller_available=0
-loading="loading "
+loading="loading Tiller"
 while [ ${tiller_available} == 0 ]
 do
   echo -ne "${loading} \r"
@@ -28,13 +27,15 @@ do
   loading+="#"
   sleep 1
 done
+clear
+print_green "Tiller is running!"
 
 eval "helm install --name etcd-operator stable/etcd-operator"
 eval "helm upgrade --set cluster.enabled=true etcd-operator stable/etcd-operator"
 
 # Wait for etcd-cluster service to be ready.
 cluster_IP=""
-loading="Loading "
+loading="Loading etcd-cluster service "
 while [  -z "${cluster_IP}" ]     # while test "$CLUSTER_IP" is empty
 do
   echo -ne "${loading} \r"
@@ -42,11 +43,11 @@ do
   loading+="#"
   sleep 3
 done
+clear
 print_green "etcd-cluster service is running!"
 
-echo "${cluster_IP}   ${ENDPOINT}" >> "/etc/hosts"
 
-
+ENDPOINT="http://etcd-cluster.${NAMESPACE}:2379"
 # CoreDNS Helm Chart values  TODO: Allow file call
 cat <<EOF > coredns-chart-config.yaml
 isClusterService: false
@@ -58,7 +59,7 @@ middleware:
     enabled: true
     zones:
     - "example.com."
-    endpoint: "http://etcd-cluster.onprem:2379"
+    endpoint: ${ENDPOINT}
 EOF
 
 eval "helm install --name=coredns -f=coredns-chart-config.yaml stable/coredns"
@@ -71,14 +72,15 @@ zones = ${ZONES}
 EOF
 
 # TODO: Allow and create etcd persistent storage
-eval "kubefed init federation-control-pane \
-    --host-cluster-context=kubernetes-admin@kubernetes \
-    --dns-provider=coredns \
-    --dns-zone-name=${ZONES} \
-    --api-server-advertise-address=${cluster_IP} \
-    --api-server-service-type=${SERVICE_TYPE} \
-    --dns-provider-config=coredns-provider.conf \
-    --etcd-persistent-storage=false"
+kubefed init "federation-control-pane \
+    --host-cluster-context="kubernetes-admin@kubernetes" \
+    --api-server-service-type="NodePort" \
+    --api-server-advertise-address=${cluster_IP}
+    --apiserver-enable-token-auth="true" \
+    --dns-provider="coredns" \
+    --dns-zone-name="${ZONES}" \
+    --dns-provider-config="coredns-provider.conf" \
+    --etcd-persistent-storage="false""
 
 # TODO: Create Cleanup of files
 

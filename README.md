@@ -1,5 +1,8 @@
 # On-Premise Kubernetes Federation with CoreDNS as DNS provider
 
+[![asciicast](https://asciinema.org/a/14.png)](https://asciinema.org/a/cy6jjezak5fn8f3l632boilmj)
+
+
 Here, we'll setup a Kubernetes federation, fully on on-premise machines (bare metal, VMs...), i.e. without being attached to any cloud provider.
 
 If you don't know the basics of Kubernetes Federation, you can take a look at this [doc](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/federation.md).
