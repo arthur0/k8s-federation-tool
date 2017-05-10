@@ -329,3 +329,25 @@ If it was correctly added, you can now run things like a replicaset in the feder
 ## Contact
 
 Any questions or suggestions, contact me at artmr@lsd.ufcg.edu.br
+
+
+Hello, I'm trying  to join a gke cluster on my on-premise federation control plane, however, some validations fail:
+
+scenario:
+```
+$ kubectl config get-clusters
+NAME
+onprem-c1
+federation-control-pane
+gke_k8s-testing-166514_us-central1-a_gke-1
+root@art-z1-master:~# kubectl config get-contexts
+CURRENT   NAME                                         CLUSTER                                      AUTHINFO                                     
+*         federation-control-pane                      federation-control-pane                      federation-control-pane                      
+          gke_k8s-testing-166514_us-central1-a_gke-1   gke_k8s-testing-166514_us-central1-a_gke-1   gke_k8s-testing-166514_us-central1-a_gke-1   
+          onprem-c1                                    onprem-c1                                    onprem-c1       
+```
+
+
+
+https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/util/validation/validation.go#L131
+

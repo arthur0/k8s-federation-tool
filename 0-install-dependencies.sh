@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source ./util.sh
+source util.sh
 
 if ! is_linux64 ; then
   print_red "[FAIL] This script works only for Linux x64 platforms."
@@ -13,7 +13,11 @@ install_kubefed(){
   cp "kubernetes/client/bin/kubefed" "/usr/local/bin"
   chmod +x "/usr/local/bin/kubefed"
   cp "kubernetes/client/bin/kubectl" "/usr/local/bin"
-  sudo "chmod +x /usr/local/bin/kubectl"
+  chmod +x "/usr/local/bin/kubectl"
+
+  rm "kubernetes-client-linux-amd64.tar.gz"
+  rm -r "kubernetes"
+
   print_green "Kubefed successfully installed!"
 }
 
@@ -22,6 +26,9 @@ install_helm(){
   curl "https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get" >> "get_helm.sh" &&
   chmod 700 "get_helm.sh" &&
   ./get_helm.sh
+
+  rm "get_helm.sh"
+
   print_green "Helm successfully installed!"
 }
 
@@ -33,3 +40,4 @@ if ! type "helm" > /dev/null; then
   install_helm
 fi
 
+print_green "All dependencies are ready!"

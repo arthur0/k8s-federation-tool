@@ -8,6 +8,10 @@ print_green() {
   printf '%b' "\033[32m$1\033[0m\n"
 }
 
+clean_screen() {
+  printf "\033c"
+}
+
 is_linux64(){
   architecture=`uname -p`
   os=`uname`

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source ./util.sh
+source util.sh
 
 # TODO: Get context name
 kubectl config use-context kubernetes-admin@kubernetes
