@@ -35,8 +35,8 @@ done
 clean_screen
 print_green "Tiller is running!"
 
-eval "helm install --name etcd-operator stable/etcd-operator"
-eval "helm upgrade --set cluster.enabled=true etcd-operator stable/etcd-operator"
+eval "helm install --namespace ${NAMESPACE} --name etcd-operator stable/etcd-operator"
+eval "helm upgrade --namespace ${NAMESPACE} --set cluster.enabled=true etcd-operator stable/etcd-operator"
 
 # Wait for etcd-cluster service to be ready.
 cluster_IP=""
@@ -90,5 +90,8 @@ eval "kubefed init federation \
 print_green "Federation Control Plane was deployed!"
 
 eval "${KUBECTL} config use-context federation"
+
+eval "${KUBECTL} create ns default"
+
 eval "${KUBECTL} config get-contexts"
 
