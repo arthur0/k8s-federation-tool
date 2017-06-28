@@ -10,7 +10,7 @@ ZONES=${ZONES:-"example.com."}
 SERVICE_TYPE=${SERVICE_TYPE:-"NodePort"}
 KUBECONFIG=${KUBE_CONFIG:-"/root/admin.conf"}
 MASTER_IP=`kubectl get nodes --selector=node-role.kubernetes.io/master  -o jsonpath={.items[0].status.addresses[0].address}`
-HOST_CONTEXT=`kubectl config  get-contexts | awk 'NR==2{print $2}'`
+HOST_CONTEXT=`kubectl config get-contexts | awk 'NR==2{print $2}'`
 
 
 # TODO: Allow file call/ Show permissive-binding creating message
